@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 #test
+=======
+>>>>>>> b805e56ce134ccc061263c04c010c80de1c40551
 
 import pygame, sys, random
 from pygame.locals import *
