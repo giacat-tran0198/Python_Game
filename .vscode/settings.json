@@ -1,5 +1,5 @@
 {
-    "python.pythonPath": "C:\\Users\\TRAN\\AppData\\Local\\Programs\\Python\\Python36\\python.exe",
+    "python.pythonPath": "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\Python36_64\\python.exe",
     "editor.fontSize": 20,
     "files.autoSave": "afterDelay",
     "code-runner.runInTerminal": false,
