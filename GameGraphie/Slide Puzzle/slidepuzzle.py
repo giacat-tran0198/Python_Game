@@ -9,7 +9,7 @@ windowHeight = 480
 FPS = 30
 blank = None
 
-black = (0, , 0, 0)
+black = (0, 0, 0)
 white = (255, 255, 255)
 brightBlue = (0, 50, 255)
 darkTurquoise = (3, 54, 73)
@@ -41,7 +41,65 @@ def main():
     DISPLAYSURF = pygame.display.set_mode((windowWidth, windowHeight))
     pygame.display.set_caption("Slide Puzzle")
     BASICFONT = pygame.font.Font("freesansbold.ttf", basicFontSize)
+
+    #lưu lại các nút và hộp của họ trong OPTIONS
+    RESET_SURF, RESET_RECT = makeText("Reset", textColor, tileColor, windowWidth - 120, windowHeight - 90)
+    NEW_SURF, NEW_RECT = makeText("New Game", textColor, tileColor, windowWidth - 120, windowHeight - 60)
+    SOLVE_SURF, SOLVE_RECT = makeText("Solve", textColor, tileColor, windowWidth - 120, windowHeight - 30)
     
+    mainBoard, solutionSeq = generateNewPuzzle(80)
+    solvedBoard = getStartingBoard
+    
+    allMoves = [] #danh sách di chuyển được thực hiện từ cấu hình đã được giải quyết
+    while True:
+        slideTo = None #hướng di chuyển
+        msg = "" #chứa thông tin hiển thị bên góc trên trái
+        if mainBoard == solvedBoard:
+            msg = "Solved!"
+        drawBoard(mainBoard, msg)
+        #nhấn nút
+        checkForQuit()
+        for event in pygame.event.get():
+            if event.type == MOUSEBUTTONUP:
+                spotx, spoty = getSpotClicked(mainBoard, event.pos[0], event.pos[1])
+                if(spotx, spoty) == (None, None):
+                    #kiểm tra đã nhấn vào chưa
+                    if RESET_RECT.collidepoint(event.pos):
+                        resetAnimation(mainBoard, allMoves) #nhấn vào reset button
+                        allMoves = []
+                    elif NEW_RECT.collidepoint(event.pos):
+                        mainBoard, solutionSeq = generateNewPuzzle(80) #nhấn vào new game
+                        allMoves = []
+                    elif SOLVE_RECT.collidepoint(event.pos):
+                        resetAnimation(mainBoard, solutionSeq + allMoves)
+                        allMoves = []
+                else: #with mouse
+                    #kiểm tra ô di chuyển qua ô trống
+                    blankx, blanky = getBlankPosition(mainBoard)
+                    if spotx == blankx + 1 and spoty == blanky:
+                        slideTo = Left
+                    elif spotx == blankx - 1 and spoty == blanky:
+                        slideTo = Right
+                    elif spotx == blankx and spoty == blanky + 1:
+                        slideTo = Up
+                    elif spotx == blankx and spoty == blanky - 1:
+                        slideTo = Down
+            #with keyboard
+            elif event.type == KEYUP:
+                if event.key in (K_LEFT, K_a) and isValidMove(mainBoard, Left):
+                    slideTo = Left
+                elif event.key in (K_RIGHT, K_d) and isValidMove(mainBoard, Right):
+                    slideTo = Right
+                elif event.key in (K_UP, K_w) and isValidMove(mainBoard, Up):
+                    slideTo = Up
+                elif event.key in (K_DOWN, K_s) and isValidMove(mainBoard, Down):
+                    slideTo = Down
+        if slideTo:
+            slideAnimation(mainBoard, slideTo, "Click tile or press arrow keys to slide", 8)
+            makeMove(mainBoard, slideTo)
+            allMoves.append(slideTo)
+        pygame.display.update()
+        FPSCLOCK.tick(FPS)
 
 #kết thúc chương trình
 def terminate():
@@ -149,7 +207,7 @@ def makeText(text, color, bgcolor, top, left):
 def drawBoard(board, message):
     DISPLAYSURF.fill(BGcolor)
     if message:
-        textSurf, textRect = makeText(message, messageColor, bgcolor, 5, 5)
+        textSurf, textRect = makeText(message, messageColor, BGcolor, 5, 5)
         DISPLAYSURF.blit(textSurf, textRect)
     for tilex in range(len(board)):
         for tiley in range(len(board[0])):
@@ -189,11 +247,11 @@ def slideAnimation(board, direction, message, animationSpeed):
     #vẽ khoảng trắn di chuyển
     moveLeft, moveTop = getLeftTopOfTile(movex, movey)
     pygame.draw.rect(baseSurf, BGcolor, (moveLeft, moveTop, tileSize, tileSize))
-    for i range(0, tileSize, animationSpeed):
+    for i in range(0, tileSize, animationSpeed):
         checkForQuit()
         DISPLAYSURF.blit(baseSurf, (0, 0))
         if direction == Up:
-            drawTile(movex, moveyy, board[movex][movex], 0, -i)
+            drawTile(movex, movey, board[movex][movex], 0, -i)
         if direction == Down:
             drawTile(movex, movey, board[movex][movey], 0, i)
         if direction == Left:
