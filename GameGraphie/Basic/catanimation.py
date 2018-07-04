@@ -11,7 +11,7 @@ DISPLAYSURF = pygame.display.set_mode((400, 300), 0, 32)
 pygame.display.set_caption('Animation')
 
 WHITE = (255, 255, 255)
-catImg = pygame.image.load('d:\Python\VS code\GameGraphie\Basic\cat.png') #gọi hình vẽ
+catImg = pygame.image.load('cat.png') #gọi hình vẽ
 catx = 10
 caty = 10
 direction = 'right'
